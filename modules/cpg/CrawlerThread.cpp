@@ -87,5 +87,5 @@ void CrawlerThread :: _init_refs() {
 
 
 void CrawlerThread::run() {
-  std::cout << "thread is now running" << std::endl;
+  std::cout << "CrawlerThread:: thread is now running" << std::endl;
 }
