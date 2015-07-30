@@ -67,6 +67,7 @@ void CrawlerThread :: _init_connections() {
 void CrawlerThread :: _init_refs() {
   for (auto& s : _pos)
   {
+    auto part_name = s.first;
     int nj = 0;
     s.second->getAxes(&nj);
     Vector tmp;
@@ -82,19 +83,18 @@ void CrawlerThread :: _init_refs() {
       tmp[i] = 10.0;
       s.second->setRefSpeed(i, tmp[i]);
     }
-    std::cout<<"CrawlerThread:: refs ok" << std::endl;
+    std::cout<<"CrawlerThread:: refs ok for " << part_name << std::endl;
     // encoders
     IEncoders *encs;
-    Vector encoders;
-    encoders.resize(nj);
+    Vector encoders(nj);
     _poly_drivers[s.first]->view(encs);
-    std::cout << "CrawlerThread:: waiting for encoders" << std::endl;
+    std::cout << "CrawlerThread:: waiting for encoders for " << part_name << std::endl;
     while(!encs->getEncoders(encoders.data()))
     {
       Time::delay(0.1);
       std::cout << "."; std::cout.flush();
     }
-    std::cout << "CrawlerThread:: encoders ok"  << std::endl;
+    std::cout << "CrawlerThread:: encoders ok for "  << part_name << std::endl;
 
     // copy encoders into commands
     _commands[s.first] = encoders;
@@ -102,22 +102,26 @@ void CrawlerThread :: _init_refs() {
 }
 
 void CrawlerThread :: _goto_init_pos(){
-  //now set the shoulder to some value
-/*  command[0]=-50;
-  command[1]=20;
-  command[2]=-10;
-  command[3]=50;
-  pos->positionMove(command.data());
-
-  bool done=false;
-
-  while(!done)
-  {
-    pos->checkMotionDone(&done);
-    Time::delay(0.1);
-  }*/
+  for (auto& s : _pos){
+    auto part_name = s.first;
+    int nj = 0;
+    s.second->getAxes(&nj);
+    Vector command = _commands[part_name];
+    for (size_t i = 0; i < _init_pos[part_name].size(); ++i)
+      command[i] = _init_pos[part_name][i];
+    _pos[part_name]->positionMove(command.data());
+  }
+  bool done = false;
+  while (!done){
+    bool d = false;
+    for (auto& s : _pos)
+      s.second->checkMotionDone(&d);
+    done = d && done;
+  }
+  std::cout << "CrawlerThread:: set to init pos done" << std::endl;
 }
 
 void CrawlerThread::run() {
+  _goto_init_pos();
   std::cout << "CrawlerThread:: thread is now running" << std::endl;
 }
