@@ -10,6 +10,8 @@
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/sig/Vector.h>
 
+#include "cpg.h"
+
 class CrawlerThread : public yarp::os::RateThread {
 public:
   CrawlerThread(int period) : yarp::os::RateThread(period) {}
@@ -31,6 +33,7 @@ protected:
   std::map<std::string, yarp::sig::Vector> _commands;
   std::map<std::string, std::shared_ptr<yarp::dev::PolyDriver> > _poly_drivers;
   std::string _robot_name;
+  Cpg _cpg;
 };
 
 #endif

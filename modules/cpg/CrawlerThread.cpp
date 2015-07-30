@@ -6,7 +6,6 @@
 #include <cmath>
 
 #include "CrawlerThread.h"
-
 using namespace yarp::dev;
 using namespace yarp::sig;
 using namespace yarp::os;
@@ -137,5 +136,25 @@ void CrawlerThread :: _goto_init_pos(){
 }
 
 void CrawlerThread::run() {
-  //std::cout << "run" << std::endl;
+  _cpg.step();
+  {
+    Vector command = _commands["left_arm"];
+    command[0] = _cpg.angles()[0] / M_PI * 180 + _init_pos["left_arm"][0];
+    _pos["left_arm"]->positionMove(command.data());
+  }
+  {
+    Vector command = _commands["right_arm"];
+    command[0] = _cpg.angles()[1] / M_PI * 180 + _init_pos["right_arm"][0];
+    _pos["right_arm"]->positionMove(command.data());
+  }
+  {
+    Vector command = _commands["right_leg"];
+    command[0] = _cpg.angles()[2] / M_PI * 180 + _init_pos["right_leg"][0];
+    _pos["right_leg"]->positionMove(command.data());
+  }
+  {
+    Vector command = _commands["left_leg"];
+    command[0] = _cpg.angles()[3] / M_PI * 180 + _init_pos["left_leg"][0];
+    _pos["left_leg"]->positionMove(command.data());
+  }
 }
