@@ -4,7 +4,7 @@
 #endif
 
 #include <map>
-#include "nn2/nn.hpp"
+#include <nn.hpp>
 
 
 class Cpg {
@@ -54,7 +54,7 @@ protected:
 
     // couplings
     // _nn.add_connection(_oscs[0], _oscs[1], std::make_pair(0.0, 0.0));
-    
+
     _nn.init();
   }
 };
