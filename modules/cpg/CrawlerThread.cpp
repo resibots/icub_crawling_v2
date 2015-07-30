@@ -25,14 +25,66 @@ bool CrawlerThread::configure(yarp::os::ResourceFinder& rf) {
   Bottle& p = robot_properties.findGroup("part_names");
   assert(!p.isNull());
   for (int i = 1; i < p.size(); ++i)
-    _parts[p.get(i).toString()] = std::vector<double>();
+    _init_pos[p.get(i).toString()] = std::vector<double>();
 
-  for (auto& s : _parts) {
+  for (auto& s : _init_pos) {
     std::cout << "part:[" << s.first <<"]";
     Bottle& b = robot_properties.findGroup(s.first);
     for (int i = 1; i < b.size(); ++i)
-      _parts[s.first].push_back(b.get(i).asDouble());
-    std::cout<<"   =>"<<_parts[s.first].size()<< " joints." << std::endl;
+      _init_pos[s.first].push_back(b.get(i).asDouble());
+    std::cout<<"   =>"<<_init_pos[s.first].size()<< " joints." << std::endl;
   }
   return true;
+}
+
+void CrawlerThread :: _init_connections() {
+  for (auto& s : _init_pos) {
+    auto part_name = s.first;
+    Property options;
+    options.put("device", "remote_controlboard");
+    auto local = "/" + _robot_name + "/" + part_name;
+    auto remote = "/cpg/" + part_name;
+    options.put("local",local.c_str());   //local port names
+    options.put("remote", remote.c_str());         //where we connect to
+
+    // create a device
+    auto robot_device = std::make_shared<PolyDriver>(options);
+    assert(robot_device->isValid());
+
+    IPositionControl *pos;
+    bool ok_pos = robot_device->view(pos);
+    assert(ok_pos);
+
+    _poly_drivers[part_name] = robot_device;
+    _pos[part_name] = pos;
+  }
+  assert(_poly_drivers.size() == _pos.size());
+}
+
+void CrawlerThread :: _init_refs() {
+  for (auto& s : _pos)
+  {
+    int nj=0;
+    s.second->getAxes(&nj);
+    Vector tmp;
+    tmp.resize(nj);
+
+    int i;
+    for (i = 0; i < nj; i++) {
+      tmp[i] = 50.0;
+    }
+    s.second->setRefAccelerations(tmp.data());
+
+    for (i = 0; i < nj; i++) {
+      tmp[i] = 10.0;
+      s.second->setRefSpeed(i, tmp[i]);
+    }
+  }
+}
+
+
+
+void CrawlerThread::run() {
+  _init_connections();
+  _init_refs();
 }

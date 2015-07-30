@@ -6,16 +6,22 @@
 
 #include <yarp/os/RFModule.h>
 #include <yarp/os/RateThread.h>
+#include <yarp/dev/ControlBoardInterfaces.h>
+#include <yarp/dev/PolyDriver.h>
 
 class CrawlerThread : public yarp::os::RateThread {
 public:
   CrawlerThread(int period) : yarp::os::RateThread(period) {}
-  void run() { }
+  void run();
   virtual bool threadInit() { return true; }
   virtual void threadRelease() { /* TODO */ }
   bool configure(yarp::os::ResourceFinder &rf);
 protected:
-  std::map<std::string, std::vector<double> > _parts;
+  void _init_connections();
+  void _init_refs();
+  std::map<std::string, std::vector<double> > _init_pos;
+  std::map<std::string, yarp::dev::IPositionControl*> _pos;
+  std::map<std::string, std::shared_ptr<yarp::dev::PolyDriver> > _poly_drivers;
   std::string _robot_name;
 };
 
