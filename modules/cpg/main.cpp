@@ -6,6 +6,7 @@
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/os/Time.h>
 #include <yarp/sig/Vector.h>
+#include <yarp/os/RFModule.h>
 
 #include <string>
 
