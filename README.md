@@ -11,3 +11,7 @@ New implementation of crawling for the iCub robot
 - mkdir build; cd build
 - ccmake ..
 
+
+
+# Notes
+- tutorial to control the motors: http://wiki.icub.org/brain/icub_motor_control_tutorial.html
