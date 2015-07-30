@@ -11,7 +11,8 @@ using namespace yarp::sig;
 using namespace yarp::os;
 
 
-bool CrawlerThread::configure(yarp::os::ResourceFinder& rf) {
+bool CrawlerThread::configure(yarp::os::ResourceFinder& rf)
+{
   _robot_name = rf.check("robot", Value("icub"), "Robot name (string)").asString();
   std::cout<< "robot: "<< _robot_name << std::endl;
 
@@ -128,5 +129,5 @@ void CrawlerThread :: _goto_init_pos(){
 }
 
 void CrawlerThread::run() {
-
+  std::cout << "run" << std::endl;
 }

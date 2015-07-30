@@ -23,7 +23,7 @@ public:
   bool interruptModule() { std::cout<<"interrupt"<<std::endl; return true; }
   bool updateModule() { return  true; }
 protected:
-  std::shared_ptr<CrawlerThread> _thread; /**< Periodic generator thread */
+  std::shared_ptr<CrawlerThread> _thread;
   std::string _module_name;
 };
 
