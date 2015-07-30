@@ -9,12 +9,11 @@
 
 class CrawlerThread : public yarp::os::RateThread {
 public:
-  CrawlerThread(int period);
-  void run();
-  virtual bool threadInit();
-  virtual void threadRelease();
+  CrawlerThread(int period) : yarp::os::RateThread(period) {}
+  void run() { }
+  virtual bool threadInit() { return true; }
+  virtual void threadRelease() { /* TODO */ }
   bool configure(yarp::os::ResourceFinder &rf);
-
 protected:
   std::map<std::string, std::vector<double> > _parts;
   std::string _robot_name;

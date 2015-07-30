@@ -14,13 +14,14 @@ class CrawlerModule : public yarp::os::RFModule {
 public:
   CrawlerModule(){}
   virtual ~CrawlerModule() {}
-  virtual double getPeriod();
-  virtual bool close();
-
+  virtual double getPeriod() { return 1.0; }
+  virtual bool close() {
+    _thread->stop();
+    return true;
+  }
   bool configure(yarp::os::ResourceFinder &rf);
-  bool interruptModule();
-  bool updateModule();
-
+  bool interruptModule() { return true; }
+  bool updateModule() { return  true; }
 protected:
   std::shared_ptr<CrawlerThread> _thread; /**< Periodic generator thread */
   std::string _module_name;

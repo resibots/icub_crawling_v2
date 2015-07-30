@@ -1,22 +1,12 @@
 #include <cassert>
-
-#include <yarp/dev/ControlBoardInterfaces.h>
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/sig/Vector.h>
-
+#include <yarp/os/Value.h>
 #include "CrawlerThread.h"
 
 using namespace yarp::dev;
 using namespace yarp::sig;
 using namespace yarp::os;
-
-CrawlerThread::CrawlerThread(int period) : yarp::os::RateThread(period) { }
-
-void CrawlerThread::run() { /* TODO */ }
-
-bool CrawlerThread::threadInit() { return true; }
-
-void CrawlerThread::threadRelease() { /* TODO */ }
 
 
 bool CrawlerThread::configure(yarp::os::ResourceFinder& rf) {
