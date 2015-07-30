@@ -3,6 +3,7 @@
 #include <yarp/sig/Vector.h>
 #include <yarp/os/Value.h>
 #include <yarp/os/Time.h>
+#include <cmath>
 
 #include "CrawlerThread.h"
 
@@ -30,11 +31,15 @@ bool CrawlerThread::configure(yarp::os::ResourceFinder& rf)
   for (int i = 1; i < p.size(); ++i)
     _init_pos[p.get(i).toString()] = std::vector<double>();
 
+  Bottle& b_i = robot_properties.findGroup("initial_pos");
   for (auto& s : _init_pos) {
     std::cout << "part:[" << s.first <<"]";
-    Bottle& b = robot_properties.findGroup(s.first);
+    Bottle& b = b_i.findGroup(s.first);
     for (int i = 1; i < b.size(); ++i)
-      _init_pos[s.first].push_back(b.get(i).asDouble());
+    {
+      assert(!b.get(i).isNull());
+      _init_pos[s.first].push_back(b.get(i).asDouble() / M_PI * 180.0f);
+    }
     std::cout<<"   =>"<<_init_pos[s.first].size()<< " joints." << std::endl;
   }
   return true;
@@ -107,11 +112,14 @@ void CrawlerThread :: _goto_init_pos(){
     auto part_name = s.first;
     int nj = 0;
     s.second->getAxes(&nj);
-    Vector command(nj);
-    command = _commands[part_name];
+    Vector command = _commands[part_name];
     assert(command.size() >= _init_pos[part_name].size());
     for (size_t i = 0; i < _init_pos[part_name].size(); ++i)
-    command[i] = _init_pos[part_name][i];
+      command[i] = _init_pos[part_name][i];
+    std::cout<<"setting init pos for "<<part_name<<std::endl;
+    for (size_t i = 0; i < command.size(); ++i)
+      std::cout<<command[i]<< " ";
+    std::cout<<std::endl;
     _pos[part_name]->positionMove(command.data());
   }
   std::cout<<"command ok,waiting"<<std::endl;
@@ -129,5 +137,5 @@ void CrawlerThread :: _goto_init_pos(){
 }
 
 void CrawlerThread::run() {
-  std::cout << "run" << std::endl;
+  //std::cout << "run" << std::endl;
 }
