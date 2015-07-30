@@ -3,4 +3,9 @@ New implementation of crawling for the iCub robot
 
 # Installation
 - Clone nn2 from: https://github.com/sferes2/nn2
-- add a symbolic link to nn2 in src (TODO: use a Cmake configuration)
+- export NN2_INCLUDE_DIR=path_to_nn2
+- export EIGEN3_INCLUDE_DIR=path_to_eigen3
+- cd modules/cpg/
+- mkdir build; cd build
+- ccmake ..
+
