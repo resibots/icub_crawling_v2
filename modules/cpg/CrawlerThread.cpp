@@ -2,6 +2,8 @@
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/sig/Vector.h>
 #include <yarp/os/Value.h>
+#include <yarp/os/Time.h>
+
 #include "CrawlerThread.h"
 
 using namespace yarp::dev;
@@ -65,7 +67,7 @@ void CrawlerThread :: _init_connections() {
 void CrawlerThread :: _init_refs() {
   for (auto& s : _pos)
   {
-    int nj=0;
+    int nj = 0;
     s.second->getAxes(&nj);
     Vector tmp;
     tmp.resize(nj);
@@ -80,11 +82,41 @@ void CrawlerThread :: _init_refs() {
       tmp[i] = 10.0;
       s.second->setRefSpeed(i, tmp[i]);
     }
+    std::cout<<"CrawlerThread:: refs ok" << std::endl;
+    // encoders
+    IEncoders *encs;
+    Vector encoders;
+    encoders.resize(nj);
+    _poly_drivers[s.first]->view(encs);
+    std::cout << "CrawlerThread:: waiting for encoders" << std::endl;
+    while(!encs->getEncoders(encoders.data()))
+    {
+      Time::delay(0.1);
+      std::cout << "."; std::cout.flush();
+    }
+    std::cout << "CrawlerThread:: encoders ok"  << std::endl;
+
+    // copy encoders into commands
+    _commands[s.first] = encoders;
   }
-  std::cout<<"CrawlerThread:: refs ok" << std::endl;
 }
 
+void CrawlerThread :: _goto_init_pos(){
+  //now set the shoulder to some value
+/*  command[0]=-50;
+  command[1]=20;
+  command[2]=-10;
+  command[3]=50;
+  pos->positionMove(command.data());
 
+  bool done=false;
+
+  while(!done)
+  {
+    pos->checkMotionDone(&done);
+    Time::delay(0.1);
+  }*/
+}
 
 void CrawlerThread::run() {
   std::cout << "CrawlerThread:: thread is now running" << std::endl;
