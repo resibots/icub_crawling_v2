@@ -44,8 +44,11 @@ ENDIF (folder_source)
 
 SOURCE_GROUP("Source Files" FILES ${folder_source})
 
-#activate c++-11
-target_compile_features(${PROJECTNAME} PRIVATE cxx_range_for)
+# activate c++-11
+# target_compile_features(${PROJECTNAME} PRIVATE cxx_range_for)
+
+SET_PROPERTY(TARGET ${PROJECTNAME} PROPERTY CXX_STANDARD 11)
+SET_PROPERTY(TARGET ${PROJECTNAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 
 
 TARGET_LINK_LIBRARIES(${PROJECTNAME} ${YARP_LIBRARIES} ${ICUB_LIBRARIES})
