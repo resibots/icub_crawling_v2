@@ -1,5 +1,5 @@
-#define EIGEN_ENABLED
-#ifdef EIGEN_ENABLED
+#define EIGEN3_ENABLED
+#ifdef EIGEN3_ENABLED
 # include <Eigen/Core>
 #endif
 
