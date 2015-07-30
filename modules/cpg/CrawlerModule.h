@@ -20,7 +20,7 @@ public:
     return true;
   }
   bool configure(yarp::os::ResourceFinder &rf);
-  bool interruptModule() { return true; }
+  bool interruptModule() { std::cout<<"interrupt"<<std::endl; return true; }
   bool updateModule() { return  true; }
 protected:
   std::shared_ptr<CrawlerThread> _thread; /**< Periodic generator thread */

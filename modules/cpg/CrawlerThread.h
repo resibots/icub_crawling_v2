@@ -17,6 +17,7 @@ public:
   virtual bool threadInit() {
     _init_connections();
     _init_refs();
+    _goto_init_pos();
     return true;
    }
   virtual void threadRelease() { /* TODO */ }

@@ -106,22 +106,27 @@ void CrawlerThread :: _goto_init_pos(){
     auto part_name = s.first;
     int nj = 0;
     s.second->getAxes(&nj);
-    Vector command = _commands[part_name];
+    Vector command(nj);
+    command = _commands[part_name];
+    assert(command.size() >= _init_pos[part_name].size());
     for (size_t i = 0; i < _init_pos[part_name].size(); ++i)
-      command[i] = _init_pos[part_name][i];
+    command[i] = _init_pos[part_name][i];
     _pos[part_name]->positionMove(command.data());
   }
+  std::cout<<"command ok,waiting"<<std::endl;
   bool done = false;
-  while (!done){
-    bool d = false;
-    for (auto& s : _pos)
+  while (!done) {
+    done = true;
+    for (auto& s : _pos){
+      bool d = false;
       s.second->checkMotionDone(&d);
-    done = d && done;
+      done = d && done;
+      Time::delay(0.1);
+    }
   }
   std::cout << "CrawlerThread:: set to init pos done" << std::endl;
 }
 
 void CrawlerThread::run() {
-  _goto_init_pos();
-  std::cout << "CrawlerThread:: thread is now running" << std::endl;
+
 }

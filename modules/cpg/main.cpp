@@ -31,6 +31,8 @@ int main(int argc, char *argv[])
 
   CrawlerModule crawler;
   crawler.configure(rf);
+  return crawler.runModule(rf);
+
   exit(0);
 
   Network yarp;
