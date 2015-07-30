@@ -11,6 +11,8 @@ bool CrawlerModule::configure(yarp::os::ResourceFinder &rf) {
 
   _thread = std::make_shared<CrawlerThread>(1.0);
   _thread->configure(rf);
+  std::cout << "CrawlerModule:: thread is configured" << std::endl;
   _thread->start();
+  std::cout<<"CrawlerModule:: thread is started" << std::endl;
   return true;
 }

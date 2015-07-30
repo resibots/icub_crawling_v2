@@ -42,10 +42,10 @@ void CrawlerThread :: _init_connections() {
     auto part_name = s.first;
     Property options;
     options.put("device", "remote_controlboard");
-    auto local = "/" + _robot_name + "/" + part_name;
-    auto remote = "/cpg/" + part_name;
-    options.put("local",local.c_str());   //local port names
-    options.put("remote", remote.c_str());         //where we connect to
+    auto remote = "/" + _robot_name + "/" + part_name;
+    auto local = "/cpg/" + part_name;
+    options.put("remote", remote.c_str());
+    options.put("local",local.c_str());
 
     // create a device
     auto robot_device = std::make_shared<PolyDriver>(options);
@@ -59,6 +59,7 @@ void CrawlerThread :: _init_connections() {
     _pos[part_name] = pos;
   }
   assert(_poly_drivers.size() == _pos.size());
+  std::cout<<"CrawlerThread:: connections ok" << std::endl;
 }
 
 void CrawlerThread :: _init_refs() {
@@ -80,11 +81,11 @@ void CrawlerThread :: _init_refs() {
       s.second->setRefSpeed(i, tmp[i]);
     }
   }
+  std::cout<<"CrawlerThread:: refs ok" << std::endl;
 }
 
 
 
 void CrawlerThread::run() {
-  _init_connections();
-  _init_refs();
+  std::cout << "thread is now running" << std::endl;
 }

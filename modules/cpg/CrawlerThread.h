@@ -12,8 +12,12 @@
 class CrawlerThread : public yarp::os::RateThread {
 public:
   CrawlerThread(int period) : yarp::os::RateThread(period) {}
-  void run();
-  virtual bool threadInit() { return true; }
+  virtual void run();
+  virtual bool threadInit() {
+    _init_connections();
+    _init_refs();
+    return true;
+   }
   virtual void threadRelease() { /* TODO */ }
   bool configure(yarp::os::ResourceFinder &rf);
 protected:
