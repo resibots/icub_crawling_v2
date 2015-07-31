@@ -55,12 +55,11 @@ bool CrawlerThread::configure(yarp::os::ResourceFinder& rf)
   for (auto& s : _init_pos) {
     Bottle& bottle_cpg = bottle_cpgs.findGroup(s.first);
     if (bottle_cpg.size()>=3) {
-      joint_numbers.push_back(bottle_cpg.get(0).asInt());
-      x.push_back(bottle_cpg.get(1).asDouble());
-      r.push_back(bottle_cpg.get(2).asDouble());
-      omega.push_back(bottle_cpg.get(3).asDouble());
-
-      _oscillators_map[s.first][bottle_cpg.get(0).asInt()] = oscillator_count;
+      joint_numbers.push_back(bottle_cpg.get(1).asInt());
+      x.push_back(bottle_cpg.get(2).asDouble());
+      r.push_back(bottle_cpg.get(3).asDouble());
+      omega.push_back(bottle_cpg.get(4).asDouble());
+      _oscillators_map[s.first][bottle_cpg.get(1).asInt()] = oscillator_count;
       ++oscillator_count;
     }
   }
