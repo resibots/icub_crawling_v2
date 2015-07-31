@@ -7,6 +7,7 @@
 #endif
 
 #include <map>
+#include <tuple>
 #include <nn.hpp>
 
 
@@ -20,16 +21,18 @@ public:
   typedef nn::NN<neuron_t, connection_t> nn_t;
   typedef nn_t::vertex_desc_t vertex_desc_t;
 
-  Cpg() {
-    _init_nn();
-    _angles.resize(_nn.get_nb_neurons());
-  }
+  Cpg() { }
+  void configure(const std::vector<float>& omega,
+    const std::vector<float>& x,
+    const std::vector<float>& r,
+    const std::vector<std::tuple<int, int, float, float> >& couplings);
 
   void step() {
     _nn.step(_in);
     for (size_t i = 0; i < _nn. get_nb_neurons(); ++i)
       _angles[i] = _nn.get_neuron_by_vertex(_nn.get_neuron(i)).get_pf().get_theta_i();
   }
+
   const std::vector<float> angles() const {
     return _angles;
   }
