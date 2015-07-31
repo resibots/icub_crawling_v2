@@ -10,6 +10,10 @@ void Cpg::configure(const std::vector<float>& omega,
 
 	for (size_t i = 0; i < omega.size(); ++i) {
 		vertex_desc_t v = _nn.add_neuron(boost::lexical_cast<std::string>(i));
+    std::cout<<"omega:"<<omega[i] << std::endl;
+    std::cout<<"x:"<<x[i] << std::endl;
+    std::cout<<"r:"<<r[i] << std::endl;
+
 		_nn.get_neuron_by_vertex(v).get_pf().set_omega(omega[i]);
 		_nn.get_neuron_by_vertex(v).get_pf().set_x(x[i]);
 		_nn.get_neuron_by_vertex(v).get_pf().set_r(r[i]);

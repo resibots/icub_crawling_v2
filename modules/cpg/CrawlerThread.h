@@ -32,6 +32,7 @@ protected:
   std::map<std::string, yarp::dev::IPositionControl*> _pos;
   std::map<std::string, yarp::sig::Vector> _commands;
   std::map<std::string, std::shared_ptr<yarp::dev::PolyDriver> > _poly_drivers;
+  std::map<std::string, std::map<int, int> > _oscillators_map;
   std::string _robot_name;
   Cpg _cpg;
 };

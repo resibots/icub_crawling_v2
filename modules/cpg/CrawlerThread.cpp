@@ -46,7 +46,6 @@ bool CrawlerThread::configure(yarp::os::ResourceFinder& rf)
 
   Bottle& bottle_cpgs = robot_properties.findGroup("oscillators");
   assert(!bottle_cpgs.isNull());
-  std::map<std::string, std::map<int, int> > oscillators_map;
   int oscillator_count = 0;
   std::vector<int> joint_numbers;
   std::vector<float> x;
@@ -61,7 +60,7 @@ bool CrawlerThread::configure(yarp::os::ResourceFinder& rf)
       r.push_back(bottle_cpg.get(2).asDouble());
       omega.push_back(bottle_cpg.get(3).asDouble());
 
-      oscillators_map[s.first][bottle_cpg.get(0).asInt()] = oscillator_count;
+      _oscillators_map[s.first][bottle_cpg.get(0).asInt()] = oscillator_count;
       ++oscillator_count;
     }
   }
@@ -78,8 +77,8 @@ bool CrawlerThread::configure(yarp::os::ResourceFinder& rf)
     stream_coupling_line >> body_part_1 >> joint_1 >> body_part_2 >> joint_2 >> weight >> phi;
 
     int osc_1, osc_2;
-    osc_1 = oscillators_map[body_part_1][joint_1];
-    osc_2 = oscillators_map[body_part_2][joint_2];
+    osc_1 = _oscillators_map[body_part_1][joint_1];
+    osc_2 = _oscillators_map[body_part_2][joint_2];
 
     couplings.push_back(std::make_tuple(osc_1, osc_2, weight, phi));
   }
@@ -182,24 +181,20 @@ void CrawlerThread :: _goto_init_pos(){
 
 void CrawlerThread::run() {
   _cpg.step();
+  for (auto& s : _oscillators_map)
   {
-    Vector command = _commands["left_arm"];
-    command[0] = _cpg.angles()[0] / M_PI * 180 + _init_pos["left_arm"][0];
-    _pos["left_arm"]->positionMove(command.data());
-  }
-  {
-    Vector command = _commands["right_arm"];
-    command[0] = _cpg.angles()[1] / M_PI * 180 + _init_pos["right_arm"][0];
-    _pos["right_arm"]->positionMove(command.data());
-  }
-  {
-    Vector command = _commands["right_leg"];
-    command[0] = _cpg.angles()[2] / M_PI * 180 + _init_pos["right_leg"][0];
-    _pos["right_leg"]->positionMove(command.data());
-  }
-  {
-    Vector command = _commands["left_leg"];
-    command[0] = _cpg.angles()[3] / M_PI * 180 + _init_pos["left_leg"][0];
-    _pos["left_leg"]->positionMove(command.data());
+    auto part_name = s.first;
+    Vector command = _commands[part_name];
+    for (auto& si : s.second)
+      {
+        int j_number = si.first;
+        int osc = si.second;
+        command[j_number] = _cpg.angles()[osc] / M_PI * 180 + _init_pos[part_name][j_number];
+      }
+    _pos[part_name]->positionMove(command.data());
+    std::cout<<"moving:"<<part_name<<": ";
+    for(size_t i = 0; i < command.size(); ++i)
+      std::cout<<command[i]<<" ";
+    std::cout<<std::endl;
   }
 }
