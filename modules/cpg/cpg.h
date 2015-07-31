@@ -6,6 +6,7 @@
 # include <Eigen/Core>
 #endif
 
+#include <iostream>
 #include <map>
 #include <tuple>
 #include <nn.hpp>
@@ -29,8 +30,11 @@ public:
 
   void step() {
     _nn.step(_in);
-    for (size_t i = 0; i < _nn. get_nb_neurons(); ++i)
+    for (size_t i = 0; i < _nn. get_nb_neurons(); ++i) {
       _angles[i] = _nn.get_neuron_by_vertex(_nn.get_neuron(i)).get_pf().get_theta_i();
+      std::cout << _angles[i] << " ";
+    }
+    std::cout << std::endl;
   }
 
   const std::vector<float> angles() const {

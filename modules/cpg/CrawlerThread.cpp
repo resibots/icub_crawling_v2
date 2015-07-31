@@ -84,9 +84,7 @@ bool CrawlerThread::configure(yarp::os::ResourceFinder& rf)
     couplings.push_back(std::make_tuple(osc_1, osc_2, weight, phi));
   }
 
-  for (auto& coupling : couplings) {
-    std::cout << std::get<0>(coupling) << "; " << std::get<1>(coupling) << std::endl;
-  }
+  _cpg.configure(omega, x, r, couplings);
 
   return true;
 }

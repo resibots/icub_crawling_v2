@@ -7,7 +7,6 @@ void Cpg::configure(const std::vector<float>& omega,
 {
 	assert(omega.size() == x.size());
 	assert(omega.size() == r.size());
-	assert(omega.size() == couplings.size());
 
 	for (size_t i = 0; i < omega.size(); ++i) {
 		vertex_desc_t v = _nn.add_neuron(boost::lexical_cast<std::string>(i));
