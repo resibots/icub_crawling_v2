@@ -11,7 +11,15 @@ New implementation of crawling for the iCub robot
 - mkdir build; cd build
 - ccmake ..
 
+# Usage
 
+- start yarpserver
+- start the simulator or the robot
+- While still in the `build` folder, we can launch the module.
+
+  ~~~
+  ./cpg --intial_pos path/to/config_cpg.ini --robot NameOfTheRobot
+  ~~~
 
 # Notes
 - tutorial to control the motors: http://wiki.icub.org/brain/icub_motor_control_tutorial.html
