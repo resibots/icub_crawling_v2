@@ -1,25 +1,29 @@
 #include "cpg.h"
 
-void Cpg::_init_nn()
+void Cpg::configure(const std::vector<float>& omega,
+		    const std::vector<float>& x,
+		    const std::vector<float>& r,
+		    const std::vector<std::tuple<int, int, float, float> >& couplings)
 {
-  int k = 0;
-  for (size_t i = 0; i < 4; ++i)
-  {
-    float x = 0; // TODO
-    float r = 0.25; // TODO // amplitude
-    float omega = 2; // TODO // phase
+	assert(omega.size() == x.size());
+	assert(omega.size() == r.size());
+	assert(omega.size() == couplings.size());
 
-    vertex_desc_t v = _nn.add_neuron(boost::lexical_cast<std::string>(i));
-    _nn.get_neuron_by_vertex(v).get_pf().set_omega(omega);
-    _nn.get_neuron_by_vertex(v).get_pf().set_x(x);
-    _nn.get_neuron_by_vertex(v).get_pf().set_r(r);
-    _oscs.push_back(v);
-  }
+	for (size_t i = 0; i < omega.size(); ++i) {
+		vertex_desc_t v = _nn.add_neuron(boost::lexical_cast<std::string>(i));
+		_nn.get_neuron_by_vertex(v).get_pf().set_omega(omega[i]);
+		_nn.get_neuron_by_vertex(v).get_pf().set_x(x[i]);
+		_nn.get_neuron_by_vertex(v).get_pf().set_r(r[i]);
+		_oscs.push_back(v);
+	}
 
-
-  // couplings
-  _nn.add_connection(_oscs[0], _oscs[1], std::make_pair(20.0, 1.0));
-  _nn.add_connection(_oscs[0], _oscs[2], std::make_pair(20.0, 1.0));
-
-  _nn.init();
+	// couplings
+	for (size_t i = 0; i < couplings.size(); ++i) {
+		const std::tuple<int, int, float, float>& t = couplings[i];
+		_nn.add_connection(_oscs[std::get < 0 > (t)],
+				   _oscs[std::get < 1 > (t)],
+				   std::make_pair(std::get<2>(t), std::get<3>(t)));
+	}
+	_nn.init();
+	_angles.resize(_nn.get_nb_neurons());
 }
