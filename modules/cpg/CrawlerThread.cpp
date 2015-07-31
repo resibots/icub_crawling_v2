@@ -16,12 +16,12 @@ bool CrawlerThread::configure(yarp::os::ResourceFinder& rf)
   _robot_name = rf.check("robot", Value("icub"), "Robot name (string)").asString();
   std::cout<< "robot: "<< _robot_name << std::endl;
 
-  std::string fname = rf.check("initial_pos", Value("initial_pos.ini"), "initial pos filename (string)").asString();
+  std::string fname = rf.check("config_file", Value("cpg_config.ini"), "configuration filename (string)").asString();
   fname = (rf.findFile(fname.c_str()));
   Property robot_properties;
   if (!robot_properties.fromConfigFile(fname.c_str()))
   {
-    std::cerr << "CrawlerModule: unable to read initial pos file ["
+    std::cerr << "CrawlerModule: unable to read configuration file for CPG ["
     << fname <<" ]" << std::endl;
     return false;
   }
@@ -41,6 +41,26 @@ bool CrawlerThread::configure(yarp::os::ResourceFinder& rf)
     }
     std::cout<<"   =>"<<_init_pos[s.first].size()<< " joints." << std::endl;
   }
+
+  Bottle& bottle_cpgs = robot_properties.findGroup("oscillators");
+  assert(!bottle_cpgs.isNull());
+  std::cout << bottle_cpgs.toString() << std::endl;
+  std::vector<float> omega;
+  std::vector<float> x;
+  std::vector<float> r;
+  std::cout << "Parameters for the CPGs : " << std::endl;
+  for (auto& s : _init_pos) {
+    Bottle& bottle_cpg = bottle_cpgs.findGroup(s.first);
+    if (bottle_cpg.size()>=3) {
+      x.push_back(bottle_cpg.get(0).asDouble());
+      r.push_back(bottle_cpg.get(1).asDouble());
+      omega.push_back(bottle_cpg.get(2).asDouble());
+    }
+  }
+
+  std::vector<std::tuple<int, int, float, float>> couplings;
+
+
   return true;
 }
 
