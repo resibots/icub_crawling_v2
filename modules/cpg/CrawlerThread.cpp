@@ -1,4 +1,6 @@
 #include <cassert>
+#include <sstream>
+
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/sig/Vector.h>
 #include <yarp/os/Value.h>
@@ -44,22 +46,47 @@ bool CrawlerThread::configure(yarp::os::ResourceFinder& rf)
 
   Bottle& bottle_cpgs = robot_properties.findGroup("oscillators");
   assert(!bottle_cpgs.isNull());
-  std::cout << bottle_cpgs.toString() << std::endl;
-  std::vector<float> omega;
+  std::map<std::string, std::map<int, int> > oscillators_map;
+  int oscillator_count = 0;
+  std::vector<int> joint_numbers;
   std::vector<float> x;
   std::vector<float> r;
-  std::cout << "Parameters for the CPGs : " << std::endl;
+  std::vector<float> omega;
+
   for (auto& s : _init_pos) {
     Bottle& bottle_cpg = bottle_cpgs.findGroup(s.first);
     if (bottle_cpg.size()>=3) {
-      x.push_back(bottle_cpg.get(0).asDouble());
-      r.push_back(bottle_cpg.get(1).asDouble());
-      omega.push_back(bottle_cpg.get(2).asDouble());
+      joint_numbers.push_back(bottle_cpg.get(0).asInt());
+      x.push_back(bottle_cpg.get(1).asDouble());
+      r.push_back(bottle_cpg.get(2).asDouble());
+      omega.push_back(bottle_cpg.get(3).asDouble());
+
+      oscillators_map[s.first][bottle_cpg.get(0).asInt()] = oscillator_count;
+      ++oscillator_count;
     }
   }
 
+  Bottle& bottle_couplings = robot_properties.findGroup("couplings");
   std::vector<std::tuple<int, int, float, float>> couplings;
+  for (int i=1; i<bottle_couplings.size(); ++i) {
+    std::string coupling_line = bottle_couplings.get(i).toString();
 
+    std::istringstream stream_coupling_line(coupling_line);
+    std::string body_part_1, body_part_2;
+    int  joint_1, joint_2;
+    float weight, phi;
+    stream_coupling_line >> body_part_1 >> joint_1 >> body_part_2 >> joint_2 >> weight >> phi;
+
+    int osc_1, osc_2;
+    osc_1 = oscillators_map[body_part_1][joint_1];
+    osc_2 = oscillators_map[body_part_2][joint_2];
+
+    couplings.push_back(std::make_tuple(osc_1, osc_2, weight, phi));
+  }
+
+  for (auto& coupling : couplings) {
+    std::cout << std::get<0>(coupling) << "; " << std::get<1>(coupling) << std::endl;
+  }
 
   return true;
 }
