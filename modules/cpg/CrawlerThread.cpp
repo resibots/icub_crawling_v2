@@ -27,10 +27,16 @@ bool CrawlerThread::configure(yarp::os::ResourceFinder& rf)
     << fname <<" ]" << std::endl;
     return false;
   }
+
+  // Find the list of the names of each part to be controlled.
+  // For instance : 'left_arm' or 'torso'
+
   Bottle& p = robot_properties.findGroup("part_names");
   assert(!p.isNull());
   for (int i = 1; i < p.size(); ++i)
     _init_pos[p.get(i).toString()] = std::vector<double>();
+
+  // Read the desired initial position for the given joints
 
   Bottle& b_i = robot_properties.findGroup("initial_pos");
   for (auto& s : _init_pos) {
@@ -44,10 +50,15 @@ bool CrawlerThread::configure(yarp::os::ResourceFinder& rf)
     std::cout<<"   =>"<<_init_pos[s.first].size()<< " joints." << std::endl;
   }
 
+  // Parse the parameters for the oscillators of each joint
+  // The synthax is : limb_name joint_id  offset amplitude pulsation
+  // TODO : the joint id is not passed to the CPGs, meaning it is not yet
+  //  interpreted !
+
   Bottle& bottle_cpgs = robot_properties.findGroup("oscillators");
   assert(!bottle_cpgs.isNull());
   int oscillator_count = 0;
-  std::vector<int> joint_numbers;
+  std::vector<int> joint_ids;
   std::vector<float> x;
   std::vector<float> r;
   std::vector<float> omega;
@@ -55,15 +66,18 @@ bool CrawlerThread::configure(yarp::os::ResourceFinder& rf)
   for (auto& s : _init_pos) {
     Bottle& bottle_cpg = bottle_cpgs.findGroup(s.first);
     if (bottle_cpg.size()>=3) {
-      joint_numbers.push_back(bottle_cpg.get(0).asInt());
-      x.push_back(bottle_cpg.get(1).asDouble());
-      r.push_back(bottle_cpg.get(2).asDouble());
-      omega.push_back(bottle_cpg.get(3).asDouble());
-
-      _oscillators_map[s.first][bottle_cpg.get(0).asInt()] = oscillator_count;
+      joint_ids.push_back(bottle_cpg.get(1).asInt());
+      x.push_back(bottle_cpg.get(2).asDouble());
+      r.push_back(bottle_cpg.get(3).asDouble());
+      omega.push_back(bottle_cpg.get(4).asDouble());
+      _oscillators_map[s.first][bottle_cpg.get(1).asInt()] = oscillator_count;
       ++oscillator_count;
     }
   }
+
+  // Read the coupling parameters that link two oscillators together
+  // The synthax is : limb_name joint_id limb_name joint_id weight phase_shift
+  // where the weight influences the speed of convergence of the coupling.
 
   Bottle& bottle_couplings = robot_properties.findGroup("couplings");
   std::vector<std::tuple<int, int, float, float>> couplings;
@@ -83,6 +97,7 @@ bool CrawlerThread::configure(yarp::os::ResourceFinder& rf)
     couplings.push_back(std::make_tuple(osc_1, osc_2, weight, phi));
   }
 
+  // set the oscillators and coupling parameters in the CPGs
   _cpg.configure(omega, x, r, couplings);
 
   return true;
@@ -192,9 +207,5 @@ void CrawlerThread::run() {
         command[j_number] = _cpg.angles()[osc] / M_PI * 180 + _init_pos[part_name][j_number];
       }
     _pos[part_name]->positionMove(command.data());
-    std::cout<<"moving:"<<part_name<<": ";
-    for(size_t i = 0; i < command.size(); ++i)
-      std::cout<<command[i]<<" ";
-    std::cout<<std::endl;
   }
 }

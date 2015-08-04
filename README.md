@@ -18,7 +18,7 @@ New implementation of crawling for the iCub robot
 - While still in the `build` folder, we can launch the module.
 
   ~~~
-  ./cpg --intial_pos path/to/config_cpg.ini --robot NameOfTheRobot
+  ./cpg --config_file path/to/config_cpg.ini --robot NameOfTheRobot
   ~~~
 
 # Notes
